@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Bar } from "react-chartjs-2";
 import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 import {
@@ -13,6 +13,8 @@ import {
   Legend
 } from "chart.js";
 
+import { countCasesDay } from "utils/casesPerDay";
+import { countRange } from "utils/rangeOfCases";
 import { api } from "utils/apiUtils";
 
 import * as S from "./styles";
@@ -35,6 +37,7 @@ const LiveByCountry = () => {
     dateFrom: "2021-09-29T23:08:34.402Z",
     selectedCase: "Confirmed"
   });
+
   const [data, setData] = useState([]);
 
   const handleFieldChange = (event) => {
@@ -47,27 +50,55 @@ const LiveByCountry = () => {
     window.history.pushState(null, "", url);
   };
 
-  const countAllCases = () => {
-    let counter = 0;
-    data.map((value) => {
-      counter += value?.[fieldData.selectedCase];
+  const countCases = (startDate, finalDate) => {
+    const array = [];
+    const dateRange = countRange(startDate, finalDate);
+
+    dateRange.forEach((currentDay) => {
+      const cases = countCasesDay(data, currentDay, fieldData.selectedCase);
+      array.push(cases);
     });
-    return counter;
+
+    return array;
+  };
+
+  const colorShow = (selectedCase) => {
+    const color = [];
+    if (selectedCase === "Confirmed") {
+      color.push("#feaa47");
+    } else if (selectedCase === "Deaths") {
+      color.push("#fe6e6e");
+    } else if (selectedCase === "Recovered") {
+      color.push("#6ffc00");
+    } else {
+      color.push("#ffffff");
+    }
+    return color;
   };
 
   const barData = {
-    labels: [fieldData.selectedCase],
+    labels: countRange(fieldData.dateFrom.split("T")[0].slice(0, 7), "2023-01"),
     datasets: [
       {
-        label: "covid-19",
+        label: fieldData.selectedCase,
         fill: false,
-        data: [data ? countAllCases() : ""],
-        backgroundColor: ["white"]
+        data: countCases(
+          fieldData.dateFrom.split("T")[0].slice(0, 7),
+          "2023-01"
+        ),
+        backgroundColor: colorShow(fieldData.selectedCase)
       }
     ]
   };
 
+  const isInitialRender = useRef(true);
+
   useEffect(() => {
+    if (isInitialRender.current) {
+      isInitialRender.current = false;
+      return;
+    }
+
     (async () => {
       const searchParams = new URLSearchParams(window.location.search);
       const country = searchParams.get("country") || fieldData.country;
@@ -75,7 +106,7 @@ const LiveByCountry = () => {
       const selectedCase =
         searchParams.get("selectedCase") || fieldData.selectedCase;
 
-      setFieldData({
+      await setFieldData({
         country,
         dateFrom,
         selectedCase
@@ -143,10 +174,10 @@ const LiveByCountry = () => {
             onChange={handleFieldChange}
             inputProps={{ id: "date-from" }}
           >
-            <MenuItem value="2021-09-29T23:08:34.402Z">2021-09-29</MenuItem>
-            <MenuItem value="2021-10-29T23:08:34.402Z">2021-10-29</MenuItem>
-            <MenuItem value="2021-11-29T23:08:34.402Z">2021-11-29</MenuItem>
-            <MenuItem value="2021-12-29T23:08:34.402Z">2021-12-29</MenuItem>
+            <MenuItem value="2021-09-29T23:08:34.402Z">2021-09</MenuItem>
+            <MenuItem value="2021-10-29T23:08:34.402Z">2021-10</MenuItem>
+            <MenuItem value="2021-11-29T23:08:34.402Z">2021-11</MenuItem>
+            <MenuItem value="2021-12-29T23:08:34.402Z">2021-12</MenuItem>
           </Select>
         </FormControl>
         <FormControl variant="outlined" style={{ margin: "16px" }}>

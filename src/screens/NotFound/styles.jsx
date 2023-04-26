@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { NavLink } from "react-router-dom";
 
-import { device } from "utils/MediaQueries";
+import { device } from "utils/mediaQueries";
 
 export const Wrapper = styled.div`
   display: flex;
@@ -23,7 +23,7 @@ export const Error = styled.h3`
   line-height: 150px;
   text-align: center;
   margin-bottom: 20px;
-  color: #ffffff;
+  color: #16191c;
   @media screen and ${device.laptopL} {
     font-size: 180px;
     line-height: 130px;
@@ -47,7 +47,7 @@ export const Message = styled.p`
   line-height: 56px;
   margin-bottom: 20px;
   text-align: center;
-  color: #ffffff;
+  color: #16191c;
   @media screen and ${device.laptopL} {
     font-size: 50px;
     line-height: 46px;
@@ -71,7 +71,7 @@ export const Btn = styled(NavLink)`
   display: block;
   width: max-content;
   margin: 0 auto;
-  background-color: #394252;
+  background-color: #16191c;
   padding: 15px 20px;
   border-radius: 20px;
   transition: 0.2s;
