@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Bar } from "react-chartjs-2";
 import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 import {
@@ -96,14 +96,7 @@ const GlobalStatistic = () => {
     ]
   };
 
-  const isInitialRender = useRef(true);
-
   useEffect(() => {
-    if (isInitialRender.current) {
-      isInitialRender.current = false;
-      return;
-    }
-
     (async () => {
       const searchParams = new URLSearchParams(window.location.search);
       const dateFrom = searchParams.get("from") || fieldData.dateFrom;
@@ -117,9 +110,10 @@ const GlobalStatistic = () => {
         selectedCase
       });
 
-      setData(
-        await api.get(`world?from=${fieldData.dateFrom}&to=${fieldData.dateTo}`)
+      const newData = await api.get(
+        `world?from=${fieldData.dateFrom}&to=${fieldData.dateTo}`
       );
+      setData(newData);
     })();
   }, [fieldData.dateFrom, fieldData.dateTo]);
 
